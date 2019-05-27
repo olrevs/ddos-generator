@@ -5,12 +5,12 @@ def generate_delay_for_packet():
     """Generate random interval between sending packet in sec"""
     return round(random.uniform(0, 0.5), 2)
 
-def generate_payload(min_count=1, max_count=100):
+def generate_payload(max_count, min_count=1):
     """Generate payload for packet with random symbols and digits beetween min and max symbols count.
     
     Arugment:
     min_count -- the minimum count of symbols in sequence (default 1)
-    max_count -- the maximum count of symbols in sequence (default 100) 
+    max_count -- the maximum count of symbols in sequence 
 
     """
     letters_and_digits = string.ascii_letters + string.digits
