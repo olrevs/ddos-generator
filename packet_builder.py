@@ -20,3 +20,7 @@ def generate_payload(min_count=1, max_count=1400):
 def generate_ttl():
     """Generate random TTL for packet between 0 and 255"""
     return random.randint(0, 255)
+
+def generate_fragsize():
+    """Generate random fragment size for packet between 1 and 1400"""
+    return random.randint(1, 1400)
