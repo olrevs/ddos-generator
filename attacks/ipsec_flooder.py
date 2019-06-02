@@ -19,6 +19,6 @@ def start_ipsec_flood(destination_ip, destination_port):
     """Continuously send IPSec packets"""
     try:
         while True:
-            send(build_ipsec_packet(destination_ip, destination_port), packet_builder.generate_delay_for_packet())
+            send(build_ipsec_packet(destination_ip, destination_port), packet_builder.generate_delay())
     except KeyboardInterrupt:
         print("...Exiting...")

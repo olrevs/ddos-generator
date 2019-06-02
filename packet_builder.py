@@ -1,7 +1,7 @@
 import random
 import string
 
-def generate_delay_for_packet():
+def generate_delay():
     """Generate random interval between sending packet in sec"""
     return round(random.uniform(0, 0.5), 2)
 

