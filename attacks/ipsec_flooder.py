@@ -15,10 +15,6 @@ def build_ipsec_packet(destination_ip, destination_port):
 
     return sa.encrypt(IP(src=RandIP(), dst=destination_ip, id=RandShort(), ttl=packet_builder.generate_ttl())/TCP(sport=RandShort(), dport=destination_port)/packet_builder.generate_payload())
 
-def start_ipsec_flood(destination_ip, destination_port):
-    """Continuously send IPSec packets"""
-    try:
-        while True:
-            send(build_ipsec_packet(destination_ip, destination_port), packet_builder.generate_delay())
-    except KeyboardInterrupt:
-        print("...Exiting...")
+def send_ipsec_packet(destination_ip, destination_port):
+    """Send IPSec packet"""
+    send(build_ipsec_packet(destination_ip, destination_port), packet_builder.generate_delay())

