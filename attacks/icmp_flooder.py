@@ -2,7 +2,6 @@ from scapy.all import IP, ICMP, fragment, send, RandIP, RandShort
 from sys import path
 path.append("..")
 import packet_builder
-from random import choice
 
 def build_icmp_packet(destination_ip):
     """Generate ICMP ECHO request with spoofed source IP address.
@@ -16,7 +15,7 @@ def build_icmp_packet(destination_ip):
 def build_fragmented_icmp_packet(destination_ip):
     """Generate fragmented ICMP packet with spoofed source IP address.
     
-    Arguments:
+    Argument:
     destination_ip -- the IP address of the target
 
     """
@@ -26,9 +25,7 @@ def send_icmp_packet(destination_ip):
     """Send ICMP ECHO request"""
     send(build_icmp_packet(destination_ip), inter=packet_builder.generate_delay())
 
-def send_fragmented_icmp_packet(packet):
+def send_fragmented_icmp_packet(destination_ip):
     """Send fragmented ICMP packets"""
-    while packet:
-        random_fragment = choice(packet)
-        packet.remove(random_fragment)
-        send(random_fragment, inter=packet_builder.generate_delay())
+    for frag in build_fragmented_icmp_packet(destination_ip):
+        send(frag, inter=packet_builder.generate_delay())

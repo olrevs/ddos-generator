@@ -29,7 +29,7 @@ request_lines = [
 def make_tcp_handshake(destination_ip, request_line):
     """Make TCP handshake by manually creating and sending SYN, SYN-ACK and ACK packets.
     
-    Argument:
+    Arguments:
     destination_ip -- the IP address of the target
     request_line -- the request line of HTTP GET method in TCP handshake stage
 

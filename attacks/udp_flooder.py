@@ -27,9 +27,7 @@ def send_udp_packet(destination_ip, destination_port):
     """Send UDP packet"""
     send(build_udp_packet(destination_ip, destination_port), inter=packet_builder.generate_delay())
 
-def send_fragmented_udp_packet(packet):
+def send_fragmented_udp_packet(destination_ip, destination_port):
     """Send fragmented UDP packets"""
-    while packet:
-        random_fragment = choice(packet)
-        packet.remove(random_fragment)
-        send(random_fragment, inter=packet_builder.generate_delay())
+    for frag in build_fragemneted_udp_packet(destination_ip, destination_port):
+        send(frag, inter=packet_builder.generate_delay())
