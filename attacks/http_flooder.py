@@ -1,45 +1,45 @@
-from scapy.all import RandShort, send, IP, TCP, sr1
+import socket
 from random import choice
 from sys import path
 path.append("..")
 import packet_builder
+from time import sleep
 
 request_lines = [
-    'GET%00 / HTTP/1.1\r\n',
-    'GET\0 / HTTP/1.1\r\n',
-    'GET\t/\tHTTP/1.1\r\n',
-    'GET / HTTP/1.1\r\n',
-    'GET /// HTTP/1.1\r\n',
-    'GET /../ HTTP/1.1\r\n',
-    'GET /./ HTTP/1.1\r\n',
-    'GET %2F HTTP/1.1\r\n',
-    'GET %2F%2F%2F HTTP/1.1\r\n',
-    'GET %2F%2E%2E%2F HTTP/1.1\r\n',
-    'GET %2F%2E%2F HTTP/1.1\r\n',
-    'GET\t%2F\tHTTP/1.1\r\n',
-    'GET\t%2F%2F%2F\tHTTP/1.1\r\n',
-    'GET\t%2F%2E%2E%2F\tHTTP/1.1\r\n',
-    'GET\t%2F%2E%2F\tHTTP/1.1\r\n',
-    'GET %2F..%2F HTTP/1.1\r\n',
-    'GET /%2E%2E/ HTTP/1.1\r\n',
-    'GET %2F.%2F HTTP/1.1\r\n',
-    'GET /%2E/ HTTP/1.1\r\n',
+    'GET%00 / HTTP/1.1\r\n\r\n',
+    'GET\0 / HTTP/1.1\r\n\r\n',
+    'GET\t/\tHTTP/1.1\r\n\r\n',
+    'GET / HTTP/1.1\r\n\r\n',
+    'GET /// HTTP/1.1\r\n\r\n',
+    'GET /../ HTTP/1.1\r\n\r\n',
+    'GET /./ HTTP/1.1\r\n\r\n',
+    'GET %2F HTTP/1.1\r\n\r\n',
+    'GET %2F%2F%2F HTTP/1.1\r\n\r\n',
+    'GET %2F%2E%2E%2F HTTP/1.1\r\n\r\n',
+    'GET %2F%2E%2F HTTP/1.1\r\n\r\n',
+    'GET\t%2F\tHTTP/1.1\r\n\r\n',
+    'GET\t%2F%2F%2F\tHTTP/1.1\r\n\r\n',
+    'GET\t%2F%2E%2E%2F\tHTTP/1.1\r\n\r\n',
+    'GET\t%2F%2E%2F\tHTTP/1.1\r\n\r\n',
+    'GET %2F..%2F HTTP/1.1\r\n\r\n',
+    'GET /%2E%2E/ HTTP/1.1\r\n\r\n',
+    'GET %2F.%2F HTTP/1.1\r\n\r\n',
+    'GET /%2E/ HTTP/1.1\r\n\r\n',
 ]
 
-def make_tcp_handshake(destination_ip, request_line):
+def send_get_packet(destination_ip, destination_port):
     """Make TCP handshake by manually creating and sending SYN, SYN-ACK and ACK packets.
     
     Arguments:
     destination_ip -- the IP address of the target
-    request_line -- the request line of HTTP GET method in TCP handshake stage
+    destination_port -- the targets port to which the packet will be sent 
+    request_line -- the request line of HTTP GET method (payload)
 
     """
-    syn=IP(dst=destination_ip)/TCP(sport=RandShort(), dport=80, flags="S")
-    syn_ack=sr1(syn)
-
-    #ack packet
-    return IP(dst=destination_ip)/TCP(sport=syn_ack.dport, dport=80, flags="A", seq=syn_ack.ack, ack=syn_ack.seq + 1) / request_line 
-
-def send_get_packet(destination_ip):
-    """Send HTTP GET request"""
-    send(make_tcp_handshake(destination_ip, choice(request_lines)), inter=packet_builder.generate_delay())
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)                 
+    s.connect((destination_ip, destination_port))
+    print(".")
+    s.send(choice(request_lines).encode("utf-8"))
+    print("Send 1 packets")
+    s.close()
+    sleep(packet_builder.generate_delay())
