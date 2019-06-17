@@ -2,12 +2,20 @@ import multiprocessing
 import os
 import sys
 import argparse
-import attacks.syn_flooder
-import attacks.ipsec_flooder
-import attacks.udp_flooder
-import attacks.http_flooder
-import attacks.icmp_flooder
-import attacks.lowandslow_sender
+
+def show_error(msg):
+    print("ERROR: " + str(msg) + "!")
+    sys.exit(1)
+
+try:
+    import attacks.syn_flooder
+    import attacks.ipsec_flooder
+    import attacks.udp_flooder
+    import attacks.http_flooder
+    import attacks.icmp_flooder
+    import attacks.lowandslow_sender
+except ImportError as e:
+    show_error(e)
 
 flag_icmp = False
 flag_ficmp = False
@@ -30,9 +38,9 @@ def check_os():
 
 def add_arguments():
     """Add arguments for program executing."""
-    parser = argparse.ArgumentParser(description="DoS generator, tool for testing website against DoS attacks 3,4 7 levels OSI.")
+    parser = argparse.ArgumentParser(description="DoS generator tool for testing website against DoS attacks on 3,4 7 levels OSI. Run the program with specified flags. To Exit type Ctrl+Z.")
     parser.add_argument("-ip", help="The IP address of testing webserver.")
-    parser.add_argument("--port", help="Port number of testing webserver, only for IPSec, UDP, SYN flood. Between 1 and 65 535.", type=int)
+    parser.add_argument("--port", help="The port number of testing webserver (for IPSec, UDP, SYN, HTTP, Slowloris). Value must be between 1 and 65535.", type=int)
     parser.add_argument("-icmp", action="store_true", help="Start ICMP flood.")
     parser.add_argument("-ficmp", action="store_true", help="Start fragmented ICMP flood.")
     parser.add_argument("-ipsec", action="store_true", help="Start IPSec flood.")
@@ -51,26 +59,23 @@ def set_arguments(parser):
 
     if len(sys.argv) < 2:
         parser.print_help()
-        sys.exit(1)
+        show_error("At least the IP address of webserwer and one of attacks type is required")
 
     if not args.ip:
-        print("Error: IP of webserwer is required!")
         parser.print_help()
-        sys.exit(1)
+        show_error("the IP address of webserwer is required")
 
     if args.port:
         if args.port < 1 or args.port >= 65535:
-            print("Error: wrong port number!")
             parser.print_help()
-            sys.exit(1)
+            show_error("Wrong port number")
 
     if not args.udp and not args.syn and not args.fudp and not args.ipsec and not args.icmp and not args.ficmp and not args.http and not args.slow:
-            print("Error: At least one type of attack is required!")
-            parser.print_help()
-            sys.exit(1)
+        parser.print_help()
+        show_error("At least one type of attack is required")
 
-    if not args.udp and not args.syn and not args.fudp and not args.ipsec and args.port:
-        print("Warning: port number only for UDP, TCP, IPSEC protocols is required.")
+    if (args.icmp or args.ficmp) and args.port:
+        print("WARNING: port number only for UDP, TCP, IPSEC protocols is required.")
 
     if args.icmp:
         global flag_icmp
@@ -80,10 +85,9 @@ def set_arguments(parser):
         global flag_ficmp
         flag_ficmp = True
 
-    if  (args.udp or args.syn or args.fudp or args.ipsec) and not args.port:
-        print("Error: port number for UDP, TCP, IPSEC protocols is required!")
+    if  (args.udp or args.syn or args.fudp or args.ipsec or args.slow or args.http) and not args.port:
         parser.print_help()
-        sys.exit(1)
+        show_error("Port number for IPSEC, UDP, TCP, HTTP, protocols is required")
 
     if args.ipsec:
         global flag_ipsec     
@@ -106,18 +110,16 @@ def set_arguments(parser):
         flag_http = True
 
     if args.sockets and args.sockets < 1:
-            print("Error: sockets count can not be less than 0!")
-            parser.print_help()
-            sys.exit(1)
+        parser.print_help()
+        show_error("Sockets count can not be less than 0")
 
     if not args.slow and args.sockets:
-        print("Warning: sockets only for Slowloris are required.")
+        print("WARNING: sockets only for Slowloris are required.")
 
     if args.slow:
         if not args.sockets:
-            print("Error: sockets count is required!")
             parser.print_help()
-            sys.exit(1)
+            show_error("Sockets count is required")
 
         global flag_slowloris
         flag_slowloris = True
@@ -128,7 +130,6 @@ def set_arguments(parser):
     destination_port = args.port
     global socket_count
     socket_count = args.sockets
-
 
 def start_ficmp():
     while True:
@@ -156,10 +157,10 @@ def start_udp():
 
 def start_http_get():
     while True:
-        attacks.http_flooder.send_get_packet(destination_ip)
+        attacks.http_flooder.send_get_packet(destination_ip, destination_port)
 
 def start_slowloris():
-    attacks.lowandslow_sender.start_slowloris(destination_ip, socket_count)
+    attacks.lowandslow_sender.start_slowloris(destination_ip, destination_port, socket_count)
 
 def start_attack():
     """Start execute choosed multiple functions in parallel"""
@@ -194,8 +195,14 @@ def main():
         check_os()
         set_arguments(add_arguments())
         start_attack()
-    except:
-        sys.exit(1)
+    except AttributeError as e:
+        show_error(e)
+    except TypeError as e:
+        show_error(e)
+    except KeyboardInterrupt:
+        sys.exit(0)
+    except Exception as e:
+        show_error(e)
 
 if __name__ == '__main__':
     main()
