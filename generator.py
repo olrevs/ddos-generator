@@ -29,7 +29,7 @@ def check_os():
         print("You should to change your OS, because some Scapy functions may  not be available.")
 
 def add_arguments():
-    """Add arguments."""
+    """Add arguments for program executing."""
     parser = argparse.ArgumentParser(description="DoS generator, tool for testing website against DoS attacks 3,4 7 levels OSI.")
     parser.add_argument("-ip", help="The IP address of testing webserver.")
     parser.add_argument("--port", help="Port number of testing webserver, only for IPSec, UDP, SYN flood. Between 1 and 65 535.", type=int)
@@ -46,6 +46,7 @@ def add_arguments():
     return parser
 
 def set_arguments(parser):
+    """Set entered arguments to internal variables."""
     args = parser.parse_args()
 
     if len(sys.argv) < 2:
@@ -60,6 +61,11 @@ def set_arguments(parser):
     if args.port:
         if args.port < 1 or args.port >= 65535:
             print("Error: wrong port number!")
+            parser.print_help()
+            sys.exit(1)
+
+    if not args.udp and not args.syn and not args.fudp and not args.ipsec and not args.icmp and not args.ficmp and not args.http and not args.slow:
+            print("Error: At least one type of attack is required!")
             parser.print_help()
             sys.exit(1)
 
@@ -183,9 +189,13 @@ def start_attack():
         process.join()
 
 def main():
-    check_os()
-    set_arguments(add_arguments())
-    start_attack()
+    """Start the execution of program."""
+    try:
+        check_os()
+        set_arguments(add_arguments())
+        start_attack()
+    except:
+        sys.exit(1)
 
 if __name__ == '__main__':
     main()
